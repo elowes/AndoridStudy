@@ -3,11 +3,14 @@ package com.bignerdranch.android.geoquiz;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.text.DecimalFormat;
 
 public class QuizActivity extends AppCompatActivity {
     private static final String TAG = "QuizActivity";
@@ -41,7 +44,6 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
-        updateQuestion();
 
         // 挑战练习，为 TextView 新增监听器
         mQuestionTextView.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +83,7 @@ public class QuizActivity extends AppCompatActivity {
                 nextQuestion();
             }
         });
+        updateQuestion();
     }
 
     @Override
@@ -132,14 +135,49 @@ public class QuizActivity extends AppCompatActivity {
         mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
         updateQuestion();
     }
+    private void setBtnsStatus(boolean enabled) {
+        mTrueButton.setEnabled(enabled);
+        mFalseButton.setEnabled(enabled);
+    }
 
     private void updateQuestion() {
         int question = mQuestionBank[mCurrentIndex].getTextResId();
+        boolean questionAnswered = mQuestionBank[mCurrentIndex].isAnswered();
+        setBtnsStatus(!questionAnswered);
+
         mQuestionTextView.setText(question);
     }
 
+    private void checkResults() {
+        int num = 0, correctNum = 0;
+        for (Question q: mQuestionBank) {
+            if (q.isAnswered()) {
+                num++;
+                if (q.uAreRight()) {
+                    correctNum++;
+                }
+            }
+        }
+        if (num < mQuestionBank.length) {
+            Toast t = Toast.makeText(this, "您已回答了" + num + "题，总共有" + mQuestionBank.length + "题。", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.TOP, 0, 0);
+            t.show();
+        } else {
+            DecimalFormat df = new DecimalFormat("0.00");
+            Log.d(TAG, String.valueOf(correctNum));
+            Toast t = Toast.makeText(this, "您的正确率为" + df.format((float)correctNum / mQuestionBank.length * 100) + "%。", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.TOP, 0, 0);
+            t.show();
+        }
+    }
+
+
     private void checkAnswer(boolean userPressedTrue) {
-        boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+        Question currentQuestion = mQuestionBank[mCurrentIndex];
+        boolean answerIsTrue = currentQuestion.isAnswerTrue();
+        currentQuestion.setAnswered(userPressedTrue); // 当前题目设置已回答标识
+        setBtnsStatus(false);
+        checkResults();
 
         int messageResId = 0;
 
