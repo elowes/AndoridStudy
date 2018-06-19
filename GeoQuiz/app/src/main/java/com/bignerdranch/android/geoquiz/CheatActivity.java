@@ -14,6 +14,7 @@ public class CheatActivity extends AppCompatActivity {
     private static final String EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown";
 
     private boolean mAnswerIsTrue;
+    private boolean mIsAnswerShown;
 
     private TextView mAnswerTextView;
     private Button mShowAnswerButton;
@@ -43,6 +44,18 @@ public class CheatActivity extends AppCompatActivity {
 
         mAnswerTextView = (TextView) findViewById(R.id.answer_text_view);
 
+        if (savedInstanceState != null) {
+            mIsAnswerShown = savedInstanceState.getBoolean(EXTRA_ANSWER_SHOWN, false);
+            if (mIsAnswerShown) {
+                setAnswerShownResult(mIsAnswerShown);
+                if (mAnswerIsTrue) {
+                    mAnswerTextView.setText("True");
+                } else {
+                    mAnswerTextView.setText("False");
+                }
+            }
+        }
+
         mShowAnswerButton = (Button) findViewById(R.id.show_answer_button);
         mShowAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,8 +65,15 @@ public class CheatActivity extends AppCompatActivity {
                 } else {
                     mAnswerTextView.setText(R.string.false_button);
                 }
-                setAnswerShownResult(true);
+                mIsAnswerShown = true;
+                setAnswerShownResult(mIsAnswerShown);
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXTRA_ANSWER_SHOWN, mIsAnswerShown);
     }
 }

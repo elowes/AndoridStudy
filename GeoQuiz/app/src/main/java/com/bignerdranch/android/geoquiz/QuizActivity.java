@@ -18,6 +18,7 @@ import java.text.DecimalFormat;
 public class QuizActivity extends AppCompatActivity {
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
+    private static final String CHEAT_FLAG = "cheat_flag";
     private static final int REQUEST_CODE_CHEAT = 0;
 
     private Button mTrueButton;
@@ -36,6 +37,7 @@ public class QuizActivity extends AppCompatActivity {
             new Question(R.string.question_americas, true),
             new Question(R.string.question_asia, true)
     };
+    private boolean[] mCheatFlags = new boolean[mQuestionBank.length];
 
     private int mCurrentIndex = 0;
     private boolean mIsCheater;
@@ -48,6 +50,7 @@ public class QuizActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX);
+            mIsCheater = savedInstanceState.getBoolean(CHEAT_FLAG);
         }
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
@@ -104,7 +107,7 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
-        updateQuestion();
+        updateQuestion(mIsCheater);
     }
 
     @Override
@@ -118,6 +121,7 @@ public class QuizActivity extends AppCompatActivity {
                 return;
             }
             mIsCheater = CheatActivity.wasAnswerShown(data);
+            mCheatFlags[mCurrentIndex] = mIsCheater;
         }
     }
 
@@ -126,6 +130,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         Log.i(TAG, "onSaveInstanceState");
         outState.putInt(KEY_INDEX, mCurrentIndex);
+        outState.putBoolean(CHEAT_FLAG, mIsCheater);
     }
 
     @Override
@@ -163,20 +168,20 @@ public class QuizActivity extends AppCompatActivity {
             mCurrentIndex = mQuestionBank.length;
         }
         mCurrentIndex = (mCurrentIndex - 1) % mQuestionBank.length;
-        updateQuestion();
+        updateQuestion(mCheatFlags[mCurrentIndex]);
     }
 
     private void nextQuestion() {
         mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
-        updateQuestion();
+        updateQuestion(mCheatFlags[mCurrentIndex]);
     }
     private void setBtnsStatus(boolean enabled) {
         mTrueButton.setEnabled(enabled);
         mFalseButton.setEnabled(enabled);
     }
 
-    private void updateQuestion() {
-        mIsCheater = false;
+    private void updateQuestion(boolean isCheater) {
+        mIsCheater = isCheater;
         int question = mQuestionBank[mCurrentIndex].getTextResId();
         boolean questionAnswered = mQuestionBank[mCurrentIndex].isAnswered();
         setBtnsStatus(!questionAnswered);
