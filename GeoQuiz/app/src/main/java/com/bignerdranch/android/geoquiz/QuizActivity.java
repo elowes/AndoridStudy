@@ -39,6 +39,7 @@ public class QuizActivity extends AppCompatActivity {
     };
     private boolean[] mCheatFlags = new boolean[mQuestionBank.length];
 
+    private int mCheatCount = 0;
     private int mCurrentIndex = 0;
     private boolean mIsCheater;
 
@@ -121,6 +122,13 @@ public class QuizActivity extends AppCompatActivity {
                 return;
             }
             mIsCheater = CheatActivity.wasAnswerShown(data);
+            if (mIsCheater) {
+                mCheatCount++;
+                Toast.makeText(this, "您已经查看了" + mCheatCount + "次答案", Toast.LENGTH_SHORT).show();
+                if (mCheatCount >= 3) {
+                    mCheatButton.setEnabled(false);
+                }
+            }
             mCheatFlags[mCurrentIndex] = mIsCheater;
         }
     }
