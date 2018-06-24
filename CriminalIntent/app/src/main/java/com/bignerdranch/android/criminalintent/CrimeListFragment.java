@@ -28,7 +28,7 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
-    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mTitleTextView;
         private TextView mDateTextView;
         private Crime mCrime;
@@ -40,8 +40,8 @@ public class CrimeListFragment extends Fragment {
             mDateTextView.setText(mCrime.getDate().toString());
         }
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.list_item_crime, parent, false));
+        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int resource) {
+            super(inflater.inflate(resource, parent, false));
 
             mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
             mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
@@ -61,11 +61,31 @@ public class CrimeListFragment extends Fragment {
             mCrimes = crimes;
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            if(mCrimes.get(position).getRequiresPolice()) {
+                return 1;
+            } else {
+                return 2;
+            }
+        }
+
         @NonNull
         @Override
         public CrimeHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            int resource;
             LayoutInflater inflater = LayoutInflater.from(getActivity());
-            return new CrimeHolder(inflater, viewGroup);
+            switch (i) {
+                case 1:
+                    resource = R.layout.list_item_crime_rp;
+                    break;
+                case 2:
+                    resource = R.layout.list_item_crime;
+                    break;
+                default:
+                    resource = R.layout.list_item_crime;
+            }
+            return new CrimeHolder(inflater, viewGroup, resource);
         }
 
         @Override
