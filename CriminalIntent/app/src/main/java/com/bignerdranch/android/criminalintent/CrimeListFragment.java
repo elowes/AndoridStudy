@@ -9,9 +9,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class CrimeListFragment extends Fragment {
@@ -32,12 +38,16 @@ public class CrimeListFragment extends Fragment {
         private TextView mTitleTextView;
         private TextView mDateTextView;
         private Crime mCrime;
+        private ImageView mSolvedImageView;
 
 
         public void bind(Crime crime) {
             mCrime = crime;
+            DateFormat bf = new SimpleDateFormat("EEEE,MMM,dd,yyyy");
+            String format = bf.format(mCrime.getDate());
             mTitleTextView.setText(mCrime.getTitle());
-            mDateTextView.setText(mCrime.getDate().toString());
+            mDateTextView.setText(format);
+            mSolvedImageView.setVisibility(mCrime.isSolved() ? View.VISIBLE : View.INVISIBLE);
         }
 
         public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int resource) {
@@ -45,6 +55,7 @@ public class CrimeListFragment extends Fragment {
 
             mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
             mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
+            mSolvedImageView = (ImageView) itemView.findViewById(R.id.crime_solved);
             itemView.setOnClickListener(this);
         }
 
@@ -53,6 +64,7 @@ public class CrimeListFragment extends Fragment {
             Toast.makeText(getActivity(), mCrime.getTitle() + "clicked", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
         private List<Crime> mCrimes;
@@ -77,8 +89,9 @@ public class CrimeListFragment extends Fragment {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             switch (i) {
                 case 1:
-                    resource = R.layout.list_item_crime_rp;
-                    break;
+//                    这里取消掉 list_item_crime_rp 的 layout，为了后续和书中样式统一
+//                    resource = R.layout.list_item_crime_rp;
+//                    break;
                 case 2:
                     resource = R.layout.list_item_crime;
                     break;
